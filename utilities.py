@@ -1,3 +1,5 @@
+from datetime import date
+
 dd = {
 	'unique_transaction_id':0,
 	'dollarsobligated':1,
@@ -77,10 +79,72 @@ dd = {
 	
 	
 }
-# This is designed to reduce memory usage. We don't need to use a dictionary and key-value pairs for every single data object.
+# This is designed to reduce memory usage. We don't need to store the key-value relationship for every single data object.
 # This way we just store the key and field number relationship once and we can store the data objects as lists.
 def indexLookup(field):
 	if (field in dd.keys()):
 		return dd[field]
 	else:
 		return "invalid"
+
+# returns an empty string if input is an empty string or contains only spaces
+# otherwise input is returned		
+def checkNotBlank(input):
+	if input == "":
+		return input
+	else:
+		for ch in input:
+			if ch != " ":
+				return input
+		return ""
+
+# returns input coverted to a float and rounded to two decimal places
+# returns "" if the input cannot be coverted to float
+def checkDollars(input):
+	try:
+		input = float(input)
+		return round(input,2)
+	except:
+		return ""
+
+# returns a date object if the imput is a valid date in the form m(m)/d(d)/yyyy
+# returns "" otherwise
+def checkDate(input):
+	parts = input.split("/")
+	try:
+		d = date(int(parts[2]),int(parts[0]),int(parts[1]))
+		return d
+	except:
+		return ""
+
+#returns Y if the input is Y: YES
+#returns N if the input is N: NO
+#returns "" otherwise
+def checkYesNo(input):
+	if(input == "Y: YES"):
+		input = "Y"
+	elif(input == "N: NO"):
+		input = "N"
+	else:
+		input = ""
+	
+	return input
+	
+#returns an integer representation of the input if it can be converted
+#returns "" otherwise
+def checkInt(input):
+	try:
+		input = int(input)
+		return input
+	except:
+		return ""
+		
+#returns input if input is TRUE or FALSE
+#returns "" otherwise
+def checkTF(input):
+	if(input == "true"):
+		return input
+	elif(input == "false"):
+		return input
+	else:
+		return ""
