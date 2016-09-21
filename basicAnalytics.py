@@ -1,3 +1,7 @@
+#Matthew Smith
+#CS521 Project 2
+#frequency for string data and basic analytics for numerical data
+
 import utilities as u
 import numpy as np
 

@@ -1,3 +1,7 @@
+#Matthew Smith
+#CS521 Project 2
+#Utility functions
+
 from datetime import date
 
 dd = {

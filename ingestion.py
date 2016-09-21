@@ -1,3 +1,7 @@
+#Matthew Smith
+#CS521 Project 2
+# Data Ingestion and Preprocesisng
+
 import csv
 import utilities as u
 
