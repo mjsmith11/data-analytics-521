@@ -134,12 +134,17 @@ def checkYesNo(input):
 	
 	return input
 	
-#returns an integer representation of the input if it can be converted
+#returns an integer representation of the input if it can be converted and is between min and max inclusive
 #returns "" otherwise
-def checkInt(input):
+def checkInt(input,min,max):
 	try:
 		input = int(input)
-		return input
+		if(input<min):
+			return ""
+		elif(input>max):
+			return ""
+		else:
+			return input
 	except:
 		return ""
 		

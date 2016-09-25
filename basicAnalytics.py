@@ -4,34 +4,39 @@
 
 import utilities as u
 import numpy as np
+import cPickle as pickle
 
 
-# accepts a data list created by ingestion.py and field name as a string
+# accepts a list of pickle files created by ingestion.py and field name as a string
 # returns a dictionary with data values from the provided field in the provided data as keys and number of occurances as values
-def frequencies(data, field):
+def frequencies(dataPickles, field):
     result = {}
-    for row in data:
-        value = row[u.indexLookup(field)]
-        if (result.has_key(value)):
-            result[value] = result[value] + 1
-        else:
-            result[value] = 1
+    for file in dataPickles:
+        data = pickle.load(open(file, "rb"))
+        for row in data:
+            value = row[u.indexLookup(field)]
+            if (result.has_key(value)):
+                result[value] = result[value] + 1
+            else:
+                result[value] = 1
 
     return result
 
 
-# accepts a data list created by ingestion.py and field name as a string
+# accepts a list of pickle files created by ingestion.py and field name as a string
 # returns a dictionary with 2 entries. The numpy array with key 'array' and the number of missing elements with key 'missing elements'
-def getNumpyArray(data, field):
+def getNumpyArray(dataPickles, field):
     mylist = []
     missingElements = 0
     fieldNum = u.indexLookup(field)
 
-    for row in data:
-        if row[fieldNum] == "":
-            missingElements += 1
-        else:
-            mylist.append(row[fieldNum])
+    for file in dataPickles:
+        data = pickle.load(open(file,"rb"))
+        for row in data:
+            if row[fieldNum] == "":
+                missingElements += 1
+            else:
+                mylist.append(row[fieldNum])
 
     return {'array':np.array(mylist), 'missing elements':missingElements}
 
