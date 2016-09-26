@@ -85,5 +85,20 @@ def computeBasicNumericalAnalytics(array):
 
     return result
 
+#returns a dictionary representing ordered pairs from the xfield and yfield supplied. Key 'x' is a list of x values. key 'y' is a list of y values
+#data objects missing either of these fields are not included
+#data with either field exceeding the specified max are not included.
 
+def getOrderedPairs(xfield,yfield,dataPickles,max):
+        xlist = []
+        ylist = []
+        xfieldnum = u.indexLookup(xfield)
+        yfieldnum = u.indexLookup(yfield)
+        for file in dataPickles:
+            data = pickle.load(open(file, "rb"))
+            for row in data:
+                if(row[xfieldnum]!="" and row[yfieldnum]!="" and row[xfieldnum]<max and row[yfieldnum]<max):
+                    xlist.append(row[xfieldnum])
+                    ylist.append(row[yfieldnum])
 
+        return {'x':xlist,'y':ylist}
