@@ -1,22 +1,12 @@
 # Matthew Smith
 # CS521 Project 2
-# Data Ingestion and Preprocesisng
+# Data Ingestion and Preprocessing
 
 import csv
 import utilities as u
 import traceback
 import cPickle as pickle
 import os
-import basicAnalytics
-
-
-def main():
-    #print readAndPreprocess("C:\\io\\realData.csv", "C:\\io\\pickles\\")
-    pickles = ['C:\\io\\pickles\\save1.p', 'C:\\io\\pickles\\save2.p', 'C:\\io\\pickles\\save3.p', 'C:\\io\\pickles\\save4.p', 'C:\\io\\pickles\\save5.p', 'C:\\io\\pickles\\save6.p', 'C:\\io\\pickles\\save7.p', 'C:\\io\\pickles\\save8.p', 'C:\\io\\pickles\\save9.p', 'C:\\io\\pickles\\save10.p', 'C:\\io\\pickles\\savelast10.p']
-    npyarr=basicAnalytics.getNumpyArray(pickles,'numberofemployees')
-    print npyarr['missing elements']
-    print basicAnalytics.computeBasicNumericalAnalytics(npyarr['array'])
-
 
 
 # accepts a file path as a string and parses it as csv, and a location for pickle files with a trailing slash
@@ -135,7 +125,3 @@ def readAndPreprocess(file, pickleLocation):
 def deletePickleFiles(pickles):
     for file in pickles:
         os.remove(file)
-
-
-if __name__ == "__main__":
-    main()
