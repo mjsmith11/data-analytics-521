@@ -1,2 +1,4 @@
 *.pyc
 basicAnalytics.txt
+.idea/data-analytics-521.iml
+.idea/workspace.xml
