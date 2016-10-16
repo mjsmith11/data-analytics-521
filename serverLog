@@ -1,4 +1,4 @@
-
+# coding=utf-8
 #199.72.81.55 - - [01/Jul/1995:00:00:01 -0400] "GET /history/apollo/ HTTP/1.0" 200 6245
 import re
 dd = {
@@ -16,7 +16,7 @@ dd = {
     "resource":11,   #string     path of the requested resource
     "protocol":12,   #string     ex. HTTP/1.0
     "response":13,   #int        http response code
-    "size":14       #int        size in bytes of response
+    "size":14       #string        size in bytes of response or '-' for 404, etc
 
 }
 
@@ -32,11 +32,6 @@ def parseLine(line):
     regexp = re.compile(r"\[(?P<date>[\d]+/[A-Za-z)+/[\d]+)"
                         r":(?P<time>\d\d:\d\d:\d\d)"
                         r" (?P<tz>[\+|\-]\d\d\d\d)\] "
-                        r"\"(?P<verb>[A-Z]+) "
-                        r"(?P<resource>[\w|/|.]+) "
-                        r"(?P<protocol>[A-Z]+/([\d]+(.[\d]+)?)?)\" "
-                        r"(?P<response>[\d]+) "
-                        r"(?P<size>[\d]+)"
                         )
     result = regexp.search(line)
     if result == None:
@@ -55,11 +50,47 @@ def parseLine(line):
         record.append(timesplit[2].strip())
 
         record.append(result.group('tz').strip())
-        record.append(result.group('verb').strip())
-        record.append(result.group('resource').strip())
-        record.append(result.group('protocol').strip())
-        record.append(int(result.group('response').strip()))
-        record.append(int(result.group('size').strip()))
+
+        quoteSplits = line.split("\"")
+        quotedstr = ""
+
+        # reassemble all of the split pieces except first and last to get the quoted section that contains the
+        # HTTP command, requested file\path, and protocol version. It is not true that this will be index 1 of the split
+        # because some examples have a " character in the requested file\path
+        for x in range(1, len(quoteSplits)-1):
+            if x != 1:
+                quotedstr = quotedstr+"\""
+            quotedstr = quotedstr + quoteSplits[x]
+        quotedstr = quotedstr.strip()
+
+        #get the last piece of the split. This will contain the http response and size of file sent in bytes
+        lastPart = quoteSplits[len(quoteSplits)-1].strip() # last part
+
+        regexp = re.compile("(?P<verb>^[A-Z]+)")
+        result = regexp.search(quotedstr)
+        if(result!= None):
+            verb = result.group('verb')
+        else:
+            verb = ""
+        record.append(verb.strip())
+
+        quotedstr = quotedstr[len(verb):].strip() # this removes the http verb leaving the rest of the quoted string for processing
+        httpindex = quotedstr.rfind("HTTP/")
+        if httpindex == -1:
+            resource = quotedstr
+            protocol = ""
+        else:
+            resource = quotedstr[:httpindex]
+            protocol = quotedstr[httpindex:]
+        record.append(resource.strip())
+        record.append(protocol.strip())
+
+        lastPartSplits = lastPart.split(" ")
+        record.append(int(lastPartSplits[0].strip())) #http response
+        if(len(lastPartSplits)>1):
+            record.append(lastPartSplits[1].strip()) # number of bytes sent
+        else:
+            record.append("")   #number of bytes sent missing
     return record
 
 def getMonthNum(str):
@@ -80,7 +111,31 @@ def getMonthNum(str):
 
     return d[str]
 
+def main():
+    i = 0
+    f = open('C:\\io\\access_log_Jul95')
+    dict = {}
+    for line in f:
+            res = parseLine(line)
+            i = i+1
+            if (res == -1):
+                print i
+                print line
+                break
+            else:
+                if res[14] in dict:
+                    dict[res[14]]=dict[res[14]]+1
+                else:
+                    dict[res[14]]=1
 
+    print dict
+
+    f.close()
 
 if __name__ == "__main__":
-    print parseLine("199.72.81.55 - - [01/Jul/1995:00:00:01 -0400] \"GET /history/apollo/hi.html HTTP/1.0\" 200 6245")
+    #print parseLine("199.72.81.55 - - [01/Jul/1995:00:00:01 -0400] \"GET /history/apollo/ HTTP/1.0\" 200 6245")
+    #print parseLine("pipe6.nyc.pipeline.com - - [01/Jul/1995:00:22:43 -0400] \"GET /shuttle/missions/sts-71/movies/sts-71-mir-dock.mpg\" 200 946425")
+    main()
+    #print parseLine("firewall.dfw.ibm.com - - [20/Jul/1995:07:53:24 -0400] \"1/history/apollo/images/\" 400 -")
+    #print parseLine("p12.haifa1.actcom.co.il - - [07/Jul/1995:17:49:26 -0400] \"GET /shuttle/resources/orbiters/†b×	 HTTP/1.0\" 404 -")
+    #print parseLine("202.251.172.60 - - [14/Jul/1995:04:10:23 -0400] \"GET /shuttle/missions/sts-65/mission-sts-65.htmlhþ§Š ’žŽ‡||(­ HTTP/1.0\" 404 -")
