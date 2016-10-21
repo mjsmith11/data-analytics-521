@@ -86,12 +86,22 @@ class serverLog(DataFrameBaseType):
         return record
 
 
+def assignment3calls():
+    #setup
+    d = serverLog()
+    d.readSingleLineRecordsSemiStructured("C:\\io\\access_log_Jul95")
 
-
+    #1
+    print "#1 Access Frequencies for Days of the week"
+    d.addDayOfWeek("month", "day", "year", "day_of_week")
+    dayFreq = d.frequencies("day_of_week")
+    print dayFreq.reindex(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+    print "\n"
 def main():
     d = serverLog()
     d.readSingleLineRecordsSemiStructured("C:\\io\\access_log_Jul95")
-    print d.df.ix[3]
+
+
 if __name__ == "__main__":
     #print parseLine("199.72.81.55 - - [01/Jul/1995:00:00:01 -0400] \"GET /history/apollo/ HTTP/1.0\" 200 6245")
     #print parseLine("pipe6.nyc.pipeline.com - - [01/Jul/1995:00:22:43 -0400] \"GET /shuttle/missions/sts-71/movies/sts-71-mir-dock.mpg\" 200 946425")

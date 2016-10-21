@@ -2,6 +2,8 @@ from abc import ABCMeta, abstractmethod
 from pandas import Series,DataFrame
 import pandas as pd
 import numpy as np
+from datetime import datetime
+import utilities as u
 
 class DataFrameBaseType:
     'common base class for data in a dataframe'
@@ -36,7 +38,12 @@ class DataFrameBaseType:
         if len(data)!=0:
             self.empty = 0
             self.df = DataFrame(data,columns=self.columnNames)
+    """Adds a column named newColName with the day of the week calculated using data in the passed month, day, and year fields."""
+    def addDayOfWeek(self,basedOnName,newColName):
+        self.df[newColName] = self.df[basedOnName].map(lambda x: u.getDayOfWeek(x))
 
 
+    def frequencies(self,field):
+        return self.df[field].value_counts()
 
 

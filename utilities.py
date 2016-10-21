@@ -159,7 +159,7 @@ def checkTF(input):
 		return ""
 
 
-def getMonthNum(str):
+def getMonthNum(strinp):
     d = {
         "Jan": "01",
         "Feb": "02",
@@ -174,5 +174,23 @@ def getMonthNum(str):
         "Nov": "11",
         "Dec": "12"
     }
+    return d[strinp]
 
-    return d[str]
+def getDayStr(dayInt):
+    d = {
+        0:"Monday",
+        1:"Tuesday",
+        2:"Wednesday",
+        3:"Thursday",
+        4:"Friday",
+        5:"Saturday",
+        6:"Sunday"
+    }
+    return d[dayInt]
+
+def getDayOfWeek(dateinput):
+    splits = dateinput.split('/')
+    myday = int(splits[0])
+    mymonth = int(getMonthNum(splits[1]))
+    myyear = int(splits[2])
+    return getDayStr(date(myyear, mymonth, myday).weekday())
