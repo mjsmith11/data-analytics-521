@@ -1,17 +1,26 @@
 # coding=utf-8
-#199.72.81.55 - - [01/Jul/1995:00:00:01 -0400] "GET /history/apollo/ HTTP/1.0" 200 6245
+
 import re
 import pandas as pd
 import numpy as np
 import utilities as u
 from pandas import Series,DataFrame
 from DataFrameBase import DataFrameBaseType
+import visualizations as v
+import matplotlib.pyplot as plot
+
 
 class serverLog(DataFrameBaseType):
     def __init__(self):
         self.columnNames = ['requester','date','month','day','year','time','hour','minute','second','tz','verb','resource','protocol','response','size']
+        self.sessiondf = None
         super(serverLog,self).__init__()
 
+
+#Parses a line in the following format:
+#199.72.81.55 - - [01/Jul/1995:00:00:01 -0400] "GET /history/apollo/ HTTP/1.0" 200 6245
+#returns a list in the following order
+#['requester','date','month','day','year','time','hour','minute','second','tz','verb','resource','protocol','response','size']
     def parseLine(self,line):
         record = []
 
@@ -85,27 +94,146 @@ class serverLog(DataFrameBaseType):
                 record.append("")   #number of bytes sent missing
         return record
 
+    #returns the average number of requests per session.
+    #requires processSessions has completed
+    def avgSession(self):
+        sessionSeries = self.sessiondf['total_requests']
+        return sessionSeries.astype(int).mean()
 
-def assignment3calls():
+    #returns the average size of files sent to clients
+    #requires readSingleLineRecordsSemiStructured from the base class has completed
+    def avgSize(self):
+        sizeSeries = self.df['size']
+        hyphensDroped = sizeSeries[sizeSeries != "-"]
+        return hyphensDroped.astype(int).mean()
+
+    # returns the minimum size of files sent to clients
+    # requires readSingleLineRecordsSemiStructured from the base class has completed
+    def minSize(self):
+        sizeSeries = self.df['size']
+        hyphensDroped = sizeSeries[sizeSeries != "-"]
+        return hyphensDroped.astype(int).min()
+
+    # returns the minimum size of files sent to clients
+    # requires readSingleLineRecordsSemiStructured from the base class has completed
+    def maxSize(self):
+        sizeSeries = self.df['size']
+        hyphensDroped = sizeSeries[sizeSeries != "-"]
+        return hyphensDroped.astype(int).max()
+
+    #creates a second dataframe as a member of the object that contains the following fields
+    #['requester', 'date', 'time', 'total_requests']
+    def processSessions(self):
+        sessionData = []
+
+        requester = ""
+        date = ""
+        time = ""
+        numRequests = 0
+        first = True
+
+        for index,row in self.df.iterrows():
+            if(index % 10000):
+                print index
+            if (row['requester']==requester):
+                #another request in the same session
+                numRequests += 1
+            else:
+                if (not first):
+                    sessionData.append([requester,date,time,numRequests])
+                requester = row['requester']
+                date = row['time']
+                numRequests = 1
+                first = False
+
+            self.sessiondf=DataFrame(sessionData,columns=['requester','date','time','total_requests'])
+
+
+#these are the calls required to address the parts of project #3
+#showing the visualizations is optional and controlled by the parameter
+#the filepath of the webserver data is passed in as the 2nd parameter
+def assignment3calls(visualize,filepath):
     #setup
     d = serverLog()
-    d.readSingleLineRecordsSemiStructured("C:\\io\\access_log_Jul95")
+    d.readSingleLineRecordsSemiStructured(filepath)
 
     #1
     print "#1 Access Frequencies for Days of the week"
-    d.addDayOfWeek("month", "day", "year", "day_of_week")
+    d.addDayOfWeek('date', "day_of_week")
     dayFreq = d.frequencies("day_of_week")
-    print dayFreq.reindex(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+    reindexed = dayFreq.reindex(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+    print reindexed
     print "\n"
+
+    #2
+    print "#2 Number of distinct clients and number of requests from each"
+    clientFreq = d.frequencies('requester')
+    print clientFreq
+    print "Distinct Clients Clients: " + str(clientFreq.size)
+    print "\n"
+
+    #3
+    print "#3 Top 10 pages visited"
+    top10 = d.filteredTopNFreq(r"((.html)(:80)?)|(/(\w+)?)(\?([\w,]+))?$", 10, 'resource')
+    print top10
+    print "\n"
+
+    #4
+    print "#4 Min, Max, and Avg file size"
+    print "min file size: "+str(d.minSize())
+    print "max file size: "+str(d.maxSize())
+    print "avg file size: "+str(d.avgSize())
+    print "\n"
+
+    #5
+    print "#5 Average session lengths"
+    d.processSessions()
+    print "avg session length "+ str(d.avgSession())+" requests"
+
+
+    #6
+    if(visualize):
+        print "#6 Visualizations"
+        values = reindexed.values
+        plot.pie(values, labels=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],autopct='%1.1f%%')
+        plot.title("Requests By Day of the Week")
+        plot.show()
+
+        x = top10.index
+        y = top10.values
+        xs = [i + 0.1 for i, _ in enumerate(y)]
+        plot.bar(xs, y, align='center', width=0.7)
+        plot.xlabel('Page Rank')
+        plot.ylabel('Times Requested')
+        plot.xticks(xs, range(1, 11))
+        plot.title("Top 10 Most Requested Pages (July 1995)")
+        plot.show()
+
+        hourFreq = d.frequencies('hour')
+        indices = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16",
+                   "17", "18", "19", "20", "21", "22", "23"]
+        reorder = hourFreq.reindex(indices)
+        data = []
+        for i in range(8):
+            data.append(reorder[i * 3] + reorder[i * 3 + 1] + reorder[i * 3 + 2])
+        labels = ['00:00-2:59', '3:00-5:59', '6:00-8:59', '9:00-11:59', '12:00-14:59', '15:00-17:59', '18:00-20:59',
+                  '21:00-23:59']
+
+        plot.pie(data, labels=labels, autopct='%1.1f%%')
+        plot.title("Requests By Time of Day (July 1995)")
+        plot.show()
+
+
+
 def main():
     d = serverLog()
     d.readSingleLineRecordsSemiStructured("C:\\io\\access_log_Jul95")
 
+    print "got main df"
+    d.processSessions()
+    print d.sessiondf
+    print d.avgSession()
+
 
 if __name__ == "__main__":
-    #print parseLine("199.72.81.55 - - [01/Jul/1995:00:00:01 -0400] \"GET /history/apollo/ HTTP/1.0\" 200 6245")
-    #print parseLine("pipe6.nyc.pipeline.com - - [01/Jul/1995:00:22:43 -0400] \"GET /shuttle/missions/sts-71/movies/sts-71-mir-dock.mpg\" 200 946425")
     main()
-    #print parseLine("firewall.dfw.ibm.com - - [20/Jul/1995:07:53:24 -0400] \"1/history/apollo/images/\" 400 -")
-    #print parseLine("p12.haifa1.actcom.co.il - - [07/Jul/1995:17:49:26 -0400] \"GET /shuttle/resources/orbiters/†b×	 HTTP/1.0\" 404 -")
-    #print parseLine("202.251.172.60 - - [14/Jul/1995:04:10:23 -0400] \"GET /shuttle/missions/sts-65/mission-sts-65.htmlhþ§Š ’žŽ‡||(­ HTTP/1.0\" 404 -")

@@ -158,7 +158,7 @@ def checkTF(input):
 	else:
 		return ""
 
-
+#returns a number in string form which corresponds to the month abbreviation passed as a parameter.
 def getMonthNum(strinp):
     d = {
         "Jan": "01",
@@ -176,6 +176,7 @@ def getMonthNum(strinp):
     }
     return d[strinp]
 
+#returns the string representation of an integer day of the week where 0 represents Monday and 6 represents Sunday
 def getDayStr(dayInt):
     d = {
         0:"Monday",
@@ -188,6 +189,7 @@ def getDayStr(dayInt):
     }
     return d[dayInt]
 
+#returns a string representing the day of the week for the input. Ex input: 09 Nov 2013
 def getDayOfWeek(dateinput):
     splits = dateinput.split('/')
     myday = int(splits[0])
