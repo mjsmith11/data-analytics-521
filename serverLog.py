@@ -145,7 +145,7 @@ class serverLog(DataFrameBaseType):
                 numRequests = 1
                 first = False
 
-            self.sessiondf=DataFrame(sessionData,columns=['requester','date','time','total_requests'])
+        self.sessiondf=DataFrame(sessionData,columns=['requester','date','time','total_requests'])
 
 
 #these are the calls required to address the parts of project #3
