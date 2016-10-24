@@ -189,7 +189,7 @@ def getDayStr(dayInt):
     }
     return d[dayInt]
 
-#returns a string representing the day of the week for the input. Ex input: 09 Nov 2013
+#returns a string representing the day of the week for the input. Ex input: 09/Nov/2013
 def getDayOfWeek(dateinput):
     splits = dateinput.split('/')
     myday = int(splits[0])

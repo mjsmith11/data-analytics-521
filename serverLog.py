@@ -1,12 +1,13 @@
+#Matthew Smith
+#CS521 Project 3
+#Class Derived from DataFrameBase for analyzing NASA web server log
+
 # coding=utf-8
 
 import re
-import pandas as pd
-import numpy as np
 import utilities as u
-from pandas import Series,DataFrame
+from pandas import DataFrame
 from DataFrameBase import DataFrameBaseType
-import visualizations as v
 import matplotlib.pyplot as plot
 
 
@@ -133,8 +134,6 @@ class serverLog(DataFrameBaseType):
         first = True
 
         for index,row in self.df.iterrows():
-            if(index % 10000):
-                print index
             if (row['requester']==requester):
                 #another request in the same session
                 numRequests += 1
@@ -189,6 +188,7 @@ def assignment3calls(visualize,filepath):
     print "#5 Average session lengths"
     d.processSessions()
     print "avg session length "+ str(d.avgSession())+" requests"
+    print '/n'
 
 
     #6
@@ -226,14 +226,16 @@ def assignment3calls(visualize,filepath):
 
 
 def main():
-    d = serverLog()
-    d.readSingleLineRecordsSemiStructured("C:\\io\\access_log_Jul95")
+    path = raw_input('Enter the file path: ')
+    visualize = ''
+    while(visualize != "Y" and visualize != "N"):
+        visualize = raw_input("Show the visualizations? (Y/N) ")
+    if visualize == "Y":
+        visualize = True
+    elif visualize == "N":
+        visualize = False
 
-    print "got main df"
-    d.processSessions()
-    print d.sessiondf
-    print d.avgSession()
-
+    assignment3calls(visualize,path)
 
 if __name__ == "__main__":
     main()
