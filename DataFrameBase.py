@@ -19,11 +19,11 @@ class DataFrameBaseType:
 
 #to be implemented in derived classes for parsing a line of a raw file and returning a python list of values. It may return
 #-1 to omit a record in an incorrect format
-    @abstractmethod
     def parseLine(self,line):
         pass
 
-#uses the parseLine method implemented in derived classes to create a dataframe as a member of the class of the data at the path provided as a parameter.
+#The parseLine method must be implemented in derived classes to use this method
+#This method uses parseLine to create a dataframe as a member of the class of the data at the path provided as a parameter.
 #This relies on self.columnNames to be defined as a python list in the derived class constructor
     def readSingleLineRecordsSemiStructured(self,filepath):
         self.filepath = filepath
