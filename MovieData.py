@@ -25,6 +25,9 @@ class MovieData(DataFrameBaseType):
         self.movies['year']=self.movies['titleandyear'].map(lambda mov: self.getMovieYear(mov))
         self.movies['title'] = self.movies['titleandyear'].map(lambda mov: self.getMovieName(mov))
         self.movies.drop('titleandyear',axis=1,inplace=True)
+        tempdf = pd.merge(self.users,self.ratings,on='user_id',how='inner')
+        self.df = pd.merge(tempdf,self.movies,on='movie_id',how='inner')
+
 
 
     def getMovieYear(self,movieStr):
@@ -46,5 +49,5 @@ def main():
 if __name__ == "__main__":
         main()
 
-#todo work on genres and years for movies
-#todo merge frames
+#todo work on genres
+    #print self.movies['genres'].str.get_dummies()
