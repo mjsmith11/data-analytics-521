@@ -169,6 +169,7 @@ class MovieData(DataFrameBaseType):
 
     #returns a python dictionary of stats calculated on each movie's average rating
     #keys are max,max_titles,min,min_titles,mean,std,25%,50%,75%
+    #shows a histogram of the average ratings if visualize is passed as true
     def ratingStats(self,visualize):
         result = {}
         grouped = self.df['rating'].groupby(self.df['title'])
@@ -235,3 +236,4 @@ class MovieData(DataFrameBaseType):
         avgRatings.sort_values(inplace=True,ascending=False)
         self.df.drop('weekday',axis=1,inplace=True)
         return avgRatings
+
