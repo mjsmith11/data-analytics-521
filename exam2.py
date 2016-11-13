@@ -4,6 +4,7 @@
 from MovieData import MovieData
 
 def showMenu():
+    print "\n"
     print "1. Distribution of Release Years         6. Zip Code Analysis"
     print "2. Most Rated Movies                     7. Average Movie Rating Analysis"
     print "3. Time From Release to Rating           8. Ratings by Genre"
@@ -21,41 +22,39 @@ def getYN(prompt):
     return response
 
 def processChoice(choice,md):
+    retval = 0
+    entertocontinue = 1
     if(choice == '1'):
         choice1(md)
-        return 0
     elif(choice == '2'):
         choice2(md)
-        return 0
     elif (choice == '3'):
         choice3(md)
-        return 0
     elif (choice == '4'):
         choice4(md)
-        return 0
     elif (choice == '5'):
         choice5(md)
-        return 0
     elif (choice == '6'):
         choice6(md)
-        return 0
     elif (choice == '7'):
         choice7(md)
-        return 0
     elif (choice == '8'):
         choice8(md)
-        return 0
     elif (choice == '9'):
         choice9(md)
-        return 0
     elif (choice == '10'):
         choice10(md)
-        return 0
     elif (choice == 'X'):
-        return 1
+        retval = 1
+        entertocontinue = 0
     else:
         print "Invalid Input! Try again."
-        return 0
+        entertocontinue = 0
+
+    if(entertocontinue):
+        raw_input("Press Enter to Continue")
+
+    return retval
 
 def choice1(md):
     print "Release Year Distribution"
@@ -157,9 +156,9 @@ def choice10(md):
 
 def main():
     m = MovieData()
-    path = raw_input("Enter Path to folder with users.dat, movies.dat, and ratings.dat")
+    path = raw_input("Enter Path to folder with users.dat, movies.dat, and ratings.dat > ")
     if(path.endswith('\\')):
-        path = path[:len(path-2)]
+        path = path[:len(path)-1]
     m.loadMovieData(path)
 
     quit = 0
@@ -167,8 +166,6 @@ def main():
         showMenu()
         choice = getChoice()
         quit = processChoice(choice,m)
-        if(not quit):
-            raw_input("Press Enter to Continue")
 
 
 if __name__ == "__main__":
