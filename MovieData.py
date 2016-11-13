@@ -69,6 +69,18 @@ class MovieData(DataFrameBaseType):
         }
         return dict[code]
 
+    def getAgeRange(self,code):
+        dict = {
+            1:"Under 18",
+            18:"18-24",
+            25:"25-34",
+            35:"35-44",
+            45:"45-49",
+            50:"50-55",
+            56:"56+"
+        }
+        return dict[code]
+
     #This removes the +4 format from US zip codes
     #if z are zip characters and p are +4 characters, it assumes the following formats
     #Length  5 input: zzzzz
@@ -126,7 +138,7 @@ class MovieData(DataFrameBaseType):
         dict = {}
         for code,group in grouped:
             dict[self.getOccupationName(code)] = group.mode().tolist()
-        print dict
+        return Series(dict)
 
     #advanced analytics
     def distinctZipCodesAndCounts(self):
@@ -190,22 +202,11 @@ class MovieData(DataFrameBaseType):
         genreDummies = genreDummies.replace(0, np.NaN)
         return genreDummies.mode(axis=0).ix[0].map(lambda x: self.getOccupationName(x))
 
-    def mostPopularHourByAgeGroup:
-        
-
-def main():
-    m = MovieData()
-    m.loadMovieData('C:\io\ex2')
-    #print m.releaseYearDistribution(True)
-    #print m.mostRatedMovies(10)
-    #x = m.distinctZipCodesAndCounts()
-    #print m.bestAndWorstGenres()
-    #print m.occupationGenrePreference()
-    #print m.ReleaseToReviewYears()
-    m.mostRatedByOccupation()
-
-if __name__ == "__main__":
-        main()
-
-#todo work on genres
-    #print self.movies['genres'].str.get_dummies()
+    def mostPopularHourByAgeGroup(self):
+        self.df['hour']=self.df['datetime'].map(lambda dt: dt.hour)
+        grouped = self.df['hour'].groupby(self.df['age'])
+        dict = {}
+        for age,group in grouped:
+            dict[self.getAgeRange(age)]=group.astype(int).mode().tolist()
+        self.df.drop('hour',axis=1,inplace=True)
+        return Series(dict)
